@@ -59,6 +59,18 @@ async def test_push_recipe_version_by_code_passthrough_payload():
     assert result["id"] == "rv-1"
 
 
+@pytest.mark.asyncio
+async def test_push_sales_shipment_sends_payload():
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(201, json={"id": "shipment-1"})
+
+    client = ModuleClient("http://ombor.test", transport=httpx.MockTransport(handler))
+    ombor = OmborBridgeClient(client)
+
+    result = await ombor.push_sales_shipment({"source_id": "x", "items": []})
+    assert result["id"] == "shipment-1"
+
+
 def test_is_configured_reflects_underlying_client():
     configured = OmborBridgeClient(ModuleClient("http://ombor.test"))
     not_configured = OmborBridgeClient(ModuleClient(None))

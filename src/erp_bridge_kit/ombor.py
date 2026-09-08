@@ -36,3 +36,7 @@ class OmborBridgeClient:
     async def push_recipe_version_by_code(self, payload: dict) -> dict:
         """Ombor'ning W3+ kontrakti: POST /recipe-versions/by-code."""
         return await self._client.post("/recipe-versions/by-code", json=payload)
+
+    async def push_sales_shipment(self, payload: dict) -> dict:
+        """Ombor'ning W5 kontrakti: POST /sales-shipments/by-code."""
+        return await self._client.post("/sales-shipments/by-code", json=payload)
