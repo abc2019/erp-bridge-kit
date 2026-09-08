@@ -35,14 +35,14 @@ async def test_push_production_batch_sends_expected_payload():
     ombor = OmborBridgeClient(client)
 
     result = await ombor.push_production_batch(
-        source_id="hr-task:123", finished_product_id="prod-1", batch_count=3
+        source_id="hr-op:op-123", finished_product_id="prod-1", completed_units=312
     )
 
     assert result["id"] == "event-1"
     assert captured["body"] == {
-        "source_id": "hr-task:123",
+        "source_id": "hr-op:op-123",
         "finished_product_id": "prod-1",
-        "batch_count": 3,
+        "completed_units": "312",
     }
 
 

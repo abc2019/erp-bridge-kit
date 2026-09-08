@@ -22,14 +22,14 @@ class OmborBridgeClient:
         """Ombor'ning GET /products — moslashtirish uchun to'liq katalog."""
         return await self._client.get("/products", params={"only_active": only_active})
 
-    async def push_production_batch(self, *, source_id: str, finished_product_id: str, batch_count: int) -> dict:
-        """Ombor'ning W4 kontrakti: POST /production-batches."""
+    async def push_production_batch(self, *, source_id: str, finished_product_id: str, completed_units) -> dict:
+        """Ombor'ning W4 kontrakti: POST /production-batches (dona-asoslangan)."""
         return await self._client.post(
             "/production-batches",
             json={
                 "source_id": source_id,
                 "finished_product_id": finished_product_id,
-                "batch_count": batch_count,
+                "completed_units": str(completed_units),
             },
         )
 
