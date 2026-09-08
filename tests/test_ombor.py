@@ -64,3 +64,21 @@ def test_is_configured_reflects_underlying_client():
     not_configured = OmborBridgeClient(ModuleClient(None))
     assert configured.is_configured is True
     assert not_configured.is_configured is False
+
+
+@pytest.mark.asyncio
+async def test_list_products_calls_correct_path():
+    captured = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["path"] = request.url.path
+        captured["query"] = str(request.url.query)
+        return httpx.Response(200, json=[{"id": "p1"}, {"id": "p2"}])
+
+    client = ModuleClient("http://ombor.test", transport=httpx.MockTransport(handler))
+    ombor = OmborBridgeClient(client)
+
+    result = await ombor.list_products()
+
+    assert captured["path"] == "/products"
+    assert len(result) == 2

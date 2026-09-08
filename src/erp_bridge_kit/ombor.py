@@ -18,6 +18,10 @@ class OmborBridgeClient:
         """Ombor'ning GET /products/by-code/{code} — mahsulotni kod orqali topadi."""
         return await self._client.get(f"/products/by-code/{external_code}")
 
+    async def list_products(self, *, only_active: bool = True) -> list[dict]:
+        """Ombor'ning GET /products — moslashtirish uchun to'liq katalog."""
+        return await self._client.get("/products", params={"only_active": only_active})
+
     async def push_production_batch(self, *, source_id: str, finished_product_id: str, batch_count: int) -> dict:
         """Ombor'ning W4 kontrakti: POST /production-batches."""
         return await self._client.post(
