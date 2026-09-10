@@ -43,7 +43,27 @@ async def test_push_production_batch_sends_expected_payload():
         "source_id": "hr-op:op-123",
         "finished_product_id": "prod-1",
         "completed_units": "312",
+        "event_type": "PRODUCED",
     }
+
+
+@pytest.mark.asyncio
+async def test_push_production_batch_defect_event_type():
+    captured = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        import json
+        captured["body"] = json.loads(request.content)
+        return httpx.Response(201, json={"id": "event-2", "duplicate": False})
+
+    client = ModuleClient("http://ombor.test", transport=httpx.MockTransport(handler))
+    ombor = OmborBridgeClient(client)
+
+    await ombor.push_production_batch(
+        source_id="hr-op:op-124", finished_product_id="prod-1",
+        completed_units=10, event_type="DEFECT",
+    )
+    assert captured["body"]["event_type"] == "DEFECT"
 
 
 @pytest.mark.asyncio
