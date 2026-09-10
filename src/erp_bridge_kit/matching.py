@@ -26,6 +26,33 @@ class MatchResult:
 DEFAULT_CONFIDENCE_THRESHOLD = 0.72
 
 
+def _score(query: str, name: str) -> float:
+    """
+    Bitta nomzod uchun ishonch balli (0..1).
+
+    HR/Analytics kabi manbalarda matn ko'pincha shunchaki mahsulot nomi
+    emas, balki uzunroq jumla (masalan smena/sana bilan birga: "2-smena
+    Tovuq karri tayyorlash"). To'liq qatorni solishtiruvchi oddiy
+    SequenceMatcher bunday holatda haqiqatan ham to'g'ri mos kelgan
+    nomzodga past ball berib yuborishi mumkin — chunki qatorlar uzunligi
+    juda farq qiladi. Shuning uchun avval "mahsulot nomi matn ICHIDA
+    so'zma-so'z uchraydimi" tekshiriladi (kuchli signal); topilmasa,
+    to'liq qator o'xshashligiga (SequenceMatcher) qaytiladi.
+    """
+    name = name.strip().lower()
+    if not name:
+        return 0.0
+    if name == query:
+        return 1.0
+    if name in query or query in name:
+        # So'zma-so'z uchrash — juda ishonchli, lekin juda qisqa (masalan
+        # 1-2 harfli) nomzodlarning tasodifan uchrab qolishidan himoyalanish
+        # uchun minimal uzunlik talab qilinadi.
+        if len(name) >= 3:
+            return 0.95
+    return SequenceMatcher(None, query, name).ratio()
+
+
 def best_name_match(
     query: str,
     candidates: dict[str, str],
@@ -48,7 +75,7 @@ def best_name_match(
 
     scored = sorted(
         (
-            (SequenceMatcher(None, query, name.strip().lower()).ratio(), code, name)
+            (_score(query, name), code, name)
             for code, name in candidates.items()
         ),
         key=lambda row: row[0],

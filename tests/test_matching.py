@@ -21,6 +21,25 @@ def test_close_match_above_threshold():
     assert result.matched_code == "SHIRIN_MURABBO_05L"
 
 
+def test_product_name_as_substring_of_longer_task_text():
+    # HR/Analytics kabi manbalarda matn ko'pincha uzunroq jumla bo'ladi
+    # (masalan smena/sana bilan birga) - mahsulot nomi so'zma-so'z
+    # uchrasa, uzunlik farqiga qaramay ishonchli deb topilishi kerak.
+    result = best_name_match("2-smena Sirka 1L tayyorlash, 3-partiya", CATALOG)
+    assert result.ready is True
+    assert result.matched_code == "SIRKA_1L"
+    assert result.confidence >= 0.9
+
+
+def test_short_name_substring_still_requires_minimum_length():
+    tiny_catalog = {"A": "A", "BEHI_MURABBO_05L": "Behi murabbosi 0.5L"}
+    result = best_name_match("A uzun matn behi murabbosi 0.5L haqida", tiny_catalog)
+    # "A" nomzodi juda qisqa (1 harf) - so'zma-so'z uchrash qoidasi qo'llanilmaydi,
+    # lekin "Behi murabbosi 0.5L" hali ham to'g'ri topiladi
+    assert result.ready is True
+    assert result.matched_code == "BEHI_MURABBO_05L"
+
+
 def test_no_match_below_threshold():
     result = best_name_match("mutlaqo aloqasiz gap haqida", CATALOG)
     assert result.ready is False
