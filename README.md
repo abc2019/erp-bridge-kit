@@ -73,3 +73,19 @@ pytest -q
 26 test: idempotentlik, moslashtirish (aniq/yaqin/noaniq/threshold),
 HTTP mijoz (muvaffaqiyat/xato/ulanmagan holatlar, `httpx.MockTransport`
 bilan — tarmoqqa chiqmasdan), Ombor wrapper.
+
+## Ombor autentifikatsiyasi (v0.7.0)
+
+`ModuleClient(base_url, api_token=...)` — `api_token` berilsa, har so'rovga
+`Authorization: Bearer <token>` qo'shiladi. Berilmasa (yoki bo'sh bo'lsa) xatti-harakat
+avvalgidek. `X-User-Role`/`X-User-Name` har doim yuboriladi (Ombor `legacy`/`permissive`
+rejimida yoki orqaga qaytarilganda kerak). Token repr'ga va xato matniga chiqmaydi.
+
+```python
+ModuleClient(
+    os.getenv("OMBOR_API_BASE_URL") or None,
+    actor_name="production-sync",
+    api_token=os.getenv("OMBOR_API_TOKEN"),   # ixtiyoriy
+)
+```
+Ombor tomoni va o'tish tartibi: `abc2019/inventory` -> `docs/auth.md`.

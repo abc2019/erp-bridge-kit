@@ -12,10 +12,16 @@ class ModuleClient:
     """
     Ixtiyoriy kontrakt modul (Ombor kabi) bilan gaplashish uchun yupqa qatlam.
 
-    Autentifikatsiya hozircha oddiy header-asosida (X-User-Role/X-User-Name) —
-    W1-W4'da Ombor'ning o'zida ishlatilgan vaqtinchalik naqsh bilan bir xil.
-    Kelajakda haqiqiy auth qo'shilsa, faqat shu klass ichida o'zgaradi —
-    iste'molchilar (production-sync va h.k.) o'zgarishi shart emas.
+    Autentifikatsiya:
+      - `api_token` berilsa, har so'rovga `Authorization: Bearer <token>`
+        qo'shiladi (Ombor'ning token asosidagi auth'i uchun; rol tokenga
+        bog'langan, header'ga emas).
+      - X-User-Role/X-User-Name HAR DOIM ham yuboriladi: Ombor hali
+        `legacy`/`permissive` rejimda bo'lsa yoki orqaga qaytarilsa, ular
+        kerak. `enforce` rejimida Ombor ularni e'tiborsiz qoldiradi.
+      - `api_token` berilmasa (yoki bo'sh/probel bo'lsa) xatti-harakat
+        avvalgidek - Authorization header yuborilmaydi.
+    Token hech qachon repr'ga, xato matniga yoki log'ga chiqmaydi.
     """
 
     def __init__(
@@ -26,12 +32,22 @@ class ModuleClient:
         actor_role: str = "OWNER",
         timeout: float = 15.0,
         transport: httpx.BaseTransport | None = None,
+        api_token: str | None = None,
     ):
         self.base_url = base_url.rstrip("/") if base_url else None
         self.actor_name = actor_name
         self.actor_role = actor_role
         self.timeout = timeout
         self._transport = transport  # testlarda httpx.MockTransport berish uchun
+        token = (api_token or "").strip()
+        self._api_token = token or None
+
+    def __repr__(self) -> str:
+        # api_token ataylab chiqarilmaydi
+        return (
+            f"ModuleClient(base_url={self.base_url!r}, actor_name={self.actor_name!r}, "
+            f"has_token={self._api_token is not None})"
+        )
 
     @property
     def is_configured(self) -> bool:
@@ -71,4 +87,7 @@ class ModuleClient:
                 raise ModuleUnreachable(str(e))
 
     def _headers(self) -> dict:
-        return {"X-User-Role": self.actor_role, "X-User-Name": self.actor_name}
+        headers = {"X-User-Role": self.actor_role, "X-User-Name": self.actor_name}
+        if self._api_token:
+            headers["Authorization"] = f"Bearer {self._api_token}"
+        return headers
