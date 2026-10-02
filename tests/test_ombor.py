@@ -114,3 +114,46 @@ async def test_list_products_calls_correct_path():
 
     assert captured["path"] == "/products"
     assert len(result) == 2
+
+
+# --- v0.8.0: tizim ogohlantirishlari ---
+@pytest.mark.asyncio
+async def test_push_system_alert_payload_and_truncation():
+    import json
+    captured = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["path"] = request.url.path
+        captured["body"] = json.loads(request.content)
+        return httpx.Response(201, json={"id": "a1", "notified": True})
+
+    ombor = OmborBridgeClient(ModuleClient("http://ombor.test", transport=httpx.MockTransport(handler)))
+    result = await ombor.push_system_alert(source="sales-sync", key="k", level="warning", message="x" * 3000)
+    assert captured["path"] == "/system-alerts"
+    assert captured["body"]["source"] == "sales-sync" and captured["body"]["level"] == "warning"
+    assert len(captured["body"]["message"]) == 1900
+    assert result["notified"] is True
+
+
+@pytest.mark.asyncio
+async def test_push_system_alert_rejects_unknown_level():
+    ombor = OmborBridgeClient(ModuleClient("http://ombor.test", transport=httpx.MockTransport(
+        lambda r: httpx.Response(201, json={}))))
+    with pytest.raises(ValueError):
+        await ombor.push_system_alert(source="s", key="k", level="panic", message="m")
+
+
+@pytest.mark.asyncio
+async def test_send_system_alert_never_raises():
+    def boom(request):
+        raise httpx.ConnectError("Ombor ishlamayapti")
+
+    ombor = OmborBridgeClient(ModuleClient("http://ombor.test", transport=httpx.MockTransport(boom)))
+    assert await ombor.send_system_alert(source="s", key="k", level="error", message="m") is False
+
+    ok = OmborBridgeClient(ModuleClient("http://ombor.test", transport=httpx.MockTransport(
+        lambda r: httpx.Response(201, json={}))))
+    assert await ok.send_system_alert(source="s", key="k", level="error", message="m") is True
+
+    unconfigured = OmborBridgeClient(ModuleClient(""))
+    assert await unconfigured.send_system_alert(source="s", key="k", level="error", message="m") is False

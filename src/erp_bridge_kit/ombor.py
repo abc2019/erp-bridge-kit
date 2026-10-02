@@ -3,7 +3,14 @@ Ombor moduli bilan gaplashadigan tayyor funksiyalar — production-sync va
 kelajakdagi boshqa ko'prik xizmatlari shuni import qiladi, o'zi HTTP
 detallarini bilishi shart emas.
 """
+import logging
+
 from erp_bridge_kit.http_client import ModuleClient
+
+logger = logging.getLogger(__name__)
+
+ALERT_LEVELS = frozenset({"error", "warning", "recovered"})
+ALERT_MAX_MESSAGE = 1900  # Ombor 2000 belgigacha qabul qiladi
 
 
 class OmborBridgeClient:
@@ -47,3 +54,28 @@ class OmborBridgeClient:
     async def push_sales_shipment(self, payload: dict) -> dict:
         """Ombor'ning W5 kontrakti: POST /sales-shipments/by-code."""
         return await self._client.post("/sales-shipments/by-code", json=payload)
+
+    async def push_system_alert(self, *, source: str, key: str, level: str, message: str) -> dict:
+        """Ombor'ning POST /system-alerts - muammo haqida OWNER'ga (Ombor Telegram
+        boti orqali) xabar. Takrorlarni Ombor o'zi to'xtatadi (bir xil key+message
+        24 soat ichida qayta yuborilmaydi; "recovered" - faqat oldin muammo
+        yuborilgan bo'lsa). Xato bo'lsa istisno ko'taradi - jimgina yuborish
+        uchun send_system_alert ishlating."""
+        if level not in ALERT_LEVELS:
+            raise ValueError(f"level {sorted(ALERT_LEVELS)} dan biri bo'lishi kerak: {level!r}")
+        return await self._client.post("/system-alerts", json={
+            "source": source, "key": key, "level": level, "message": message[:ALERT_MAX_MESSAGE],
+        })
+
+    async def send_system_alert(self, *, source: str, key: str, level: str, message: str) -> bool:
+        """push_system_alert, lekin HECH QACHON istisno ko'tarmaydi: Ombor
+        sozlanmagan/ishlamasa - faqat log, False. Sinxronizatsiya xizmatlari
+        ogohlantirish sababli to'xtab qolmasligi uchun shuni ishlatadi."""
+        if not self.is_configured:
+            return False
+        try:
+            await self.push_system_alert(source=source, key=key, level=level, message=message)
+            return True
+        except Exception:  # noqa: BLE001
+            logger.warning("Ogohlantirishni Ombor'ga yuborib bo'lmadi (%s): %s", key, message[:200], exc_info=True)
+            return False
