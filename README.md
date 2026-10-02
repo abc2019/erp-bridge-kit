@@ -89,3 +89,20 @@ ModuleClient(
 )
 ```
 Ombor tomoni va o'tish tartibi: `abc2019/inventory` -> `docs/auth.md`.
+
+## Tizim ogohlantirishlari (v0.8.0)
+
+Ombor'ning `POST /system-alerts` (Ombor #61) - muammo haqida OWNER'ga Telegram
+orqali xabar. Barcha ko'prik xizmatlari shu yagona usuldan foydalanadi:
+
+```python
+ok = await ombor.send_system_alert(
+    source="production-sync", key="production-sync:cycle",
+    level="error",            # error | warning | recovered
+    message="3 marta ketma-ket xato ...",
+)
+```
+- `send_system_alert` - hech qachon istisno ko'tarmaydi (Ombor ishlamasa - log, `False`).
+- `push_system_alert` - xatoni ko'taradi (o'zingiz ushlamoqchi bo'lsangiz).
+- Takrorlarni Ombor to'xtatadi (bir xil `key`+`message` - 24 soat).
+- Talab: Ombor tokeni OWNER rolida.
