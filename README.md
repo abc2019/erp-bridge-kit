@@ -106,3 +106,22 @@ ok = await ombor.send_system_alert(
 - `push_system_alert` - xatoni ko'taradi (o'zingiz ushlamoqchi bo'lsangiz).
 - Takrorlarni Ombor to'xtatadi (bir xil `key`+`message` - 24 soat).
 - Talab: Ombor tokeni OWNER rolida.
+
+## ERP mahsulot ma'lumotnomasi (v0.9.0)
+
+Ombor - mahsulot identifikatsiyasining yagona manbai (Ombor #67). Mijoz o'z
+kodlarini yuboradi, xaritani Ombor saqlaydi:
+
+```python
+from erp_bridge_kit.ombor import unmapped_codes
+
+try:
+    await ombor.push_sales_shipment_by_mapping(
+        source_id="analytics-order:901", system="analytics", order_reference="901",
+        items=[{"code": "palov", "quantity": 2}],
+    )
+except ModuleHTTPError as e:
+    missing = unmapped_codes(e)   # ["somsa"] - Ombor'da bog'lanmagan; None - boshqa xato
+```
+- `get_product_mappings("analytics")` - joriy xarita (o'qish uchun).
+- Xaritani OWNER Ombor botida boshqaradi: ⚙️ Sozlamalar → 🔗 Mahsulot kodlari.

@@ -3,6 +3,7 @@ Ombor moduli bilan gaplashadigan tayyor funksiyalar — production-sync va
 kelajakdagi boshqa ko'prik xizmatlari shuni import qiladi, o'zi HTTP
 detallarini bilishi shart emas.
 """
+import json
 import logging
 
 from erp_bridge_kit.http_client import ModuleClient
@@ -52,8 +53,26 @@ class OmborBridgeClient:
         return await self._client.post("/recipe-versions/by-code", json=payload)
 
     async def push_sales_shipment(self, payload: dict) -> dict:
-        """Ombor'ning W5 kontrakti: POST /sales-shipments/by-code."""
+        """Ombor'ning W5 kontrakti: POST /sales-shipments/by-code (Ombor kodlari bilan)."""
         return await self._client.post("/sales-shipments/by-code", json=payload)
+
+    async def push_sales_shipment_by_mapping(
+        self, *, source_id: str, system: str, items: list[dict], order_reference: str | None = None,
+    ) -> dict:
+        """POST /sales-shipments/by-mapping (Ombor #67): sotuv TASHQI tizim
+        kodlari bilan - items=[{"code": "palov", "quantity": "2"}]. Ombor kodlarni
+        o'z xaritasi (ERP mahsulot ma'lumotnomasi) bo'yicha mahsulotlarga
+        aylantiradi; chaqiruvchi xarita saqlamaydi. Bog'lanmagan kod - 422,
+        unmapped_codes(e) bilan aniqlash mumkin."""
+        return await self._client.post("/sales-shipments/by-mapping", json={
+            "source_id": source_id, "order_reference": order_reference, "system": system,
+            "items": [{"code": str(i["code"]), "quantity": str(i["quantity"])} for i in items],
+        })
+
+    async def get_product_mappings(self, system: str) -> dict[str, list[dict]]:
+        """GET /product-mappings/{system} -> {tashqi_kod: [mahsulotlar]} (Ombor - yagona manba)."""
+        rows = await self._client.get(f"/product-mappings/{system}")
+        return {row["code"]: row["products"] for row in rows}
 
     async def push_system_alert(self, *, source: str, key: str, level: str, message: str) -> dict:
         """Ombor'ning POST /system-alerts - muammo haqida OWNER'ga (Ombor Telegram
@@ -79,3 +98,18 @@ class OmborBridgeClient:
         except Exception:  # noqa: BLE001
             logger.warning("Ogohlantirishni Ombor'ga yuborib bo'lmadi (%s): %s", key, message[:200], exc_info=True)
             return False
+
+
+def unmapped_codes(error: Exception) -> list[str] | None:
+    """push_sales_shipment_by_mapping 422 xatosidan bog'lanmagan kodlar ro'yxati;
+    boshqa xato bo'lsa - None."""
+    from erp_bridge_kit.exceptions import ModuleHTTPError
+    if not isinstance(error, ModuleHTTPError) or error.status_code != 422:
+        return None
+    try:
+        detail = json.loads(error.body).get("detail")
+    except (ValueError, AttributeError):
+        return None
+    if isinstance(detail, dict) and isinstance(detail.get("unmapped_codes"), list):
+        return [str(c) for c in detail["unmapped_codes"]]
+    return None
