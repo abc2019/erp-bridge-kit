@@ -157,3 +157,53 @@ async def test_send_system_alert_never_raises():
 
     unconfigured = OmborBridgeClient(ModuleClient(""))
     assert await unconfigured.send_system_alert(source="s", key="k", level="error", message="m") is False
+
+
+# --- v0.9.0: ERP mahsulot ma'lumotnomasi ---
+@pytest.mark.asyncio
+async def test_push_sales_shipment_by_mapping_payload():
+    import json
+    captured = {}
+
+    def handler(request):
+        captured["path"] = request.url.path
+        captured["body"] = json.loads(request.content)
+        return httpx.Response(201, json={"id": "e1", "lines": [], "duplicate": False})
+
+    ombor = OmborBridgeClient(ModuleClient("http://ombor.test", transport=httpx.MockTransport(handler)))
+    await ombor.push_sales_shipment_by_mapping(source_id="analytics-order:9", system="analytics",
+                                              order_reference="9", items=[{"code": "palov", "quantity": 2}])
+    assert captured["path"] == "/sales-shipments/by-mapping"
+    assert captured["body"] == {"source_id": "analytics-order:9", "order_reference": "9", "system": "analytics",
+                                "items": [{"code": "palov", "quantity": "2"}]}
+
+
+@pytest.mark.asyncio
+async def test_unmapped_codes_extracted_from_422_only():
+    from erp_bridge_kit.exceptions import ModuleHTTPError
+    from erp_bridge_kit.ombor import unmapped_codes
+
+    def handler(request):
+        return httpx.Response(422, json={"detail": {"message": "m", "unmapped_codes": ["somsa", "manti"]}})
+
+    ombor = OmborBridgeClient(ModuleClient("http://ombor.test", transport=httpx.MockTransport(handler)))
+    with pytest.raises(ModuleHTTPError) as exc:
+        await ombor.push_sales_shipment_by_mapping(source_id="s", system="analytics", items=[{"code": "x", "quantity": 1}])
+    assert unmapped_codes(exc.value) == ["somsa", "manti"]
+    assert unmapped_codes(ModuleHTTPError(422, '{"detail": [{"loc": ["body"]}]}')) is None  # validatsiya xatosi
+    assert unmapped_codes(ModuleHTTPError(400, '{"detail": {"unmapped_codes": ["a"]}}')) is None
+    assert unmapped_codes(ModuleHTTPError(422, "not json")) is None
+    assert unmapped_codes(RuntimeError("x")) is None
+
+
+@pytest.mark.asyncio
+async def test_get_product_mappings():
+    def handler(request):
+        assert request.url.path == "/product-mappings/analytics"
+        return httpx.Response(200, json=[{"system": "analytics", "code": "palov",
+                                          "products": [{"product_id": "p1", "external_code": "PALOV", "name": "Palov",
+                                                        "warehouse_type": "FINISHED"}]}])
+
+    ombor = OmborBridgeClient(ModuleClient("http://ombor.test", transport=httpx.MockTransport(handler)))
+    mapping = await ombor.get_product_mappings("analytics")
+    assert list(mapping) == ["palov"] and mapping["palov"][0]["external_code"] == "PALOV"
