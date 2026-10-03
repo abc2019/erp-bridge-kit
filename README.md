@@ -125,3 +125,14 @@ except ModuleHTTPError as e:
 ```
 - `get_product_mappings("analytics")` - joriy xarita (o'qish uchun).
 - Xaritani OWNER Ombor botida boshqaradi: ⚙️ Sozlamalar → 🔗 Mahsulot kodlari.
+
+## Ishlab chiqarish xarita orqali (v0.10.0)
+
+```python
+await ombor.push_production_by_mapping(
+    source_id="hr-event:produced:plan_task:7", code="QOZON_KABOB",
+    completed_units=300, event_type="PRODUCED",   # yoki "DEFECT"
+)
+```
+Ombor kodni o'z xaritasi (`system=hr`) bo'yicha mahsulot(lar)ga aylantiradi —
+tarkibli taom qismlarga bo'linadi. Xaritada yo'q kod — shu kodli Ombor mahsuloti.
