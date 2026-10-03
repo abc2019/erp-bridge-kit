@@ -207,3 +207,22 @@ async def test_get_product_mappings():
     ombor = OmborBridgeClient(ModuleClient("http://ombor.test", transport=httpx.MockTransport(handler)))
     mapping = await ombor.get_product_mappings("analytics")
     assert list(mapping) == ["palov"] and mapping["palov"][0]["external_code"] == "PALOV"
+
+
+# --- v0.10.0: ishlab chiqarish xarita orqali ---
+@pytest.mark.asyncio
+async def test_push_production_by_mapping_payload():
+    import json
+    captured = {}
+
+    def handler(request):
+        captured["path"] = request.url.path
+        captured["body"] = json.loads(request.content)
+        return httpx.Response(201, json={"code": "QOZON_KABOB", "events": [], "duplicate": False})
+
+    ombor = OmborBridgeClient(ModuleClient("http://ombor.test", transport=httpx.MockTransport(handler)))
+    await ombor.push_production_by_mapping(source_id="hr-event:1", code="QOZON_KABOB", completed_units=300,
+                                          event_type="DEFECT")
+    assert captured["path"] == "/production-batches/by-mapping"
+    assert captured["body"] == {"source_id": "hr-event:1", "event_type": "DEFECT", "system": "hr",
+                                "code": "QOZON_KABOB", "completed_units": "300"}

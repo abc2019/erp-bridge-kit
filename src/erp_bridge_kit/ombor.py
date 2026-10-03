@@ -69,6 +69,19 @@ class OmborBridgeClient:
             "items": [{"code": str(i["code"]), "quantity": str(i["quantity"])} for i in items],
         })
 
+    async def push_production_by_mapping(
+        self, *, source_id: str, code: str, completed_units, event_type: str = "PRODUCED", system: str = "hr",
+    ) -> dict:
+        """POST /production-batches/by-mapping (Ombor #77): ishlab chiqarish
+        TASHQI kod bilan - Ombor xarita bo'yicha mahsulot(lar)ga aylantiradi
+        (tarkibli taom qismlarga, har biri o'z retsepti bilan). Xaritada yo'q,
+        lekin shu kodli Ombor mahsuloti bo'lsa - to'g'ridan-to'g'ri.
+        Topilmasa - 422 (unmapped_codes(e) bilan aniqlanadi)."""
+        return await self._client.post("/production-batches/by-mapping", json={
+            "source_id": source_id, "event_type": event_type, "system": system,
+            "code": str(code), "completed_units": str(completed_units),
+        })
+
     async def get_product_mappings(self, system: str) -> dict[str, list[dict]]:
         """GET /product-mappings/{system} -> {tashqi_kod: [mahsulotlar]} (Ombor - yagona manba)."""
         rows = await self._client.get(f"/product-mappings/{system}")
