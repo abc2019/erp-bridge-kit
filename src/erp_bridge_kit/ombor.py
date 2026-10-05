@@ -69,6 +69,17 @@ class OmborBridgeClient:
             "items": [{"code": str(i["code"]), "quantity": str(i["quantity"])} for i in items],
         })
 
+    async def push_sales_correction_by_mapping(
+        self, *, source_id: str, system: str, items: list[dict], order_reference: str | None = None,
+    ) -> dict:
+        """POST /sales-shipments/corrections/by-mapping (Ombor #91): avval yozilgan
+        sotuvga tuzatish - items=[{"code": "palov", "quantity": "-4"}]: musbat -
+        qo'shimcha chiqim, manfiy - qaytish. Idempotent (source_id)."""
+        return await self._client.post("/sales-shipments/corrections/by-mapping", json={
+            "source_id": source_id, "order_reference": order_reference, "system": system,
+            "items": [{"code": str(i["code"]), "quantity": str(i["quantity"])} for i in items],
+        })
+
     async def push_production_by_mapping(
         self, *, source_id: str, code: str, completed_units, event_type: str = "PRODUCED", system: str = "hr",
     ) -> dict:
