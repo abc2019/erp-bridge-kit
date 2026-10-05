@@ -136,3 +136,13 @@ await ombor.push_production_by_mapping(
 ```
 Ombor kodni o'z xaritasi (`system=hr`) bo'yicha mahsulot(lar)ga aylantiradi —
 tarkibli taom qismlarga bo'linadi. Xaritada yo'q kod — shu kodli Ombor mahsuloti.
+
+## Sotuv tuzatishi (v0.11.0)
+
+```python
+await ombor.push_sales_correction_by_mapping(
+    source_id="analytics-order:990:rev:3f2a", system="analytics", order_reference="990",
+    items=[{"code": "palov", "quantity": "-4"}, {"code": "non", "quantity": "2"}],
+)
+```
+Musbat — qo'shimcha chiqim, manfiy — qaytish (Ombor #91).
