@@ -70,9 +70,9 @@
      "fields": {
       "account_id": "str",
       "amount": "number",
-      "balance_after": "number",
-      "category": "str",
-      "counterparty": "str",
+      "balance_after": "number?",
+      "category": "str?",
+      "counterparty": "str?",
       "direction": "str",
       "id": "str",
       "occurred_at": "str",
@@ -119,7 +119,7 @@
        "type": "object",
        "fields": {
         "id": "str",
-        "counterparty": "str",
+        "counterparty": "str?",
         "amount": "number",
         "direction": "str",
         "occurred_at": "str"
