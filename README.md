@@ -146,3 +146,17 @@ await ombor.push_sales_correction_by_mapping(
 )
 ```
 Musbat — qo'shimcha chiqim, manfiy — qaytish (Ombor #91).
+
+## ERP API shartnomalari (`erp_bridge_kit.contracts`) — yagona manba
+`src/erp_bridge_kit/contracts/{ombor,finance,analytics,hr}.json` — har ichki endpoint uchun javob **shakli**
+(`schema`), **namuna** javob (`sample`) va kim ishlatadi (`consumers`).
+
+- **Ishlab chiqaruvchi** (Ombor, Finance, Analytics, HR) testi o'z haqiqiy javobini tekshiradi:
+  `contracts.assert_matches("finance", "/cash-accounts", body)`.
+- **Iste'molchi** (dashboard, Finance, sales-sync, production-sync) testi o'z kodini namuna bilan ishlatadi:
+  `contracts.sample("analytics", "/internal/orders/changes")`, `contracts.samples_for("sales-sync")`.
+- Maydon olib tashlansa yoki nomi o'zgarsa — **ikkala** tomonda test yiqiladi. Yangi maydon qo'shish — buzilish emas.
+- Shaklni o'zgartirish tartibi: avval shu yerda (yangi versiya), so'ng iste'molchilar, oxirida ishlab chiqaruvchi.
+
+Testlarda o'rnatish (test bog'liqligi, ishlab chiqarishga ta'sir qilmaydi):
+`erp-bridge-kit @ git+https://github.com/abc2019/erp-bridge-kit.git@<commit>` (`requirements-dev.txt` yoki CI).

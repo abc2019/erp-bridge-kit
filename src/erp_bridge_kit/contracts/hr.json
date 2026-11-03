@@ -1,0 +1,544 @@
+{
+ "service": "hr",
+ "version": 1,
+ "endpoints": {
+  "/internal/attendance-summary": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "from": "str",
+     "to": "str",
+     "required_days": "number",
+     "employees": {
+      "type": "list",
+      "items": {
+       "type": "object",
+       "fields": {
+        "approved_ot_minutes": "number",
+        "employee_id": "number",
+        "incomplete_days": "number",
+        "late_days": "number",
+        "late_minutes": "number",
+        "name": "str",
+        "off_days": "number",
+        "regular_minutes": "number",
+        "short_minutes": "number",
+        "worked_days": "number"
+       }
+      }
+     }
+    }
+   },
+   "sample": {
+    "from": "2026-11-01",
+    "to": "2026-11-13",
+    "required_days": 11,
+    "employees": [
+     {
+      "employee_id": 1,
+      "name": "Ali",
+      "worked_days": 10,
+      "off_days": 3,
+      "incomplete_days": 0,
+      "regular_minutes": 6000,
+      "short_minutes": 0,
+      "approved_ot_minutes": 90,
+      "late_days": 2,
+      "late_minutes": 35
+     },
+     {
+      "employee_id": 2,
+      "name": "Bobur",
+      "worked_days": 9,
+      "off_days": 3,
+      "incomplete_days": 1,
+      "regular_minutes": 5400,
+      "short_minutes": 30,
+      "approved_ot_minutes": 0,
+      "late_days": 0,
+      "late_minutes": 0
+     }
+    ]
+   },
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/internal/management": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "telegram_id": "number",
+      "full_name": "str",
+      "role": "str"
+     }
+    }
+   },
+   "sample": [
+    {
+     "telegram_id": 1001,
+     "full_name": "CEO",
+     "role": "ceo"
+    }
+   ],
+   "consumers": [
+    "inventory"
+   ]
+  },
+  "/internal/ombor-access": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "employee_id": "number",
+      "full_name": "str",
+      "telegram_id": "number",
+      "role": "str"
+     }
+    }
+   },
+   "sample": [
+    {
+     "employee_id": 1,
+     "full_name": "Ali",
+     "telegram_id": 2002,
+     "role": "x"
+    }
+   ],
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/internal/payroll-plan": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "employees": {
+      "type": "list",
+      "items": {
+       "type": "object",
+       "fields": {
+        "base_salary": "number",
+        "id": "number",
+        "kpi_bonus": "number",
+        "name": "str"
+       }
+      }
+     },
+     "base_total": "number",
+     "bonus_total": "number",
+     "total": "number"
+    }
+   },
+   "sample": {
+    "employees": [
+     {
+      "id": 1,
+      "name": "Ali",
+      "base_salary": 2600000,
+      "kpi_bonus": 300000
+     },
+     {
+      "id": 2,
+      "name": "Bobur",
+      "base_salary": 2400000,
+      "kpi_bonus": 0
+     }
+    ],
+    "base_total": 5000000,
+    "bonus_total": 300000,
+    "total": 5300000
+   },
+   "consumers": [
+    "erp-dashboard",
+    "abc2019-finance"
+   ]
+  },
+  "/internal/plan-week": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "week_start": "str",
+     "unresolved": {
+      "type": "list",
+      "items": "str"
+     },
+     "days": {
+      "type": "list",
+      "items": {
+       "type": "object",
+       "fields": {
+        "date": "str",
+        "weekday": "number",
+        "shifts": {
+         "type": "list",
+         "items": {
+          "type": "object",
+          "fields": {
+           "shift_no": "number",
+           "tasks": {
+            "type": "list",
+            "items": {
+             "type": "object",
+             "fields": {
+              "code": "str?",
+              "kind": "str",
+              "status": "str",
+              "task_id": "number",
+              "text": "str",
+              "units": "number?"
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "totals": {
+      "type": "object",
+      "fields": {
+       "planned_units": "number",
+       "done_units": "number",
+       "by_product": {
+        "type": "list",
+        "items": {
+         "type": "object",
+         "fields": {
+          "code": "str",
+          "done": "number",
+          "planned": "number"
+         }
+        }
+       }
+      }
+     }
+    }
+   },
+   "sample": {
+    "week_start": "2026-11-02",
+    "unresolved": [
+     "Lag'mon 2 partiya"
+    ],
+    "days": [
+     {
+      "date": "2026-11-02",
+      "weekday": 0,
+      "shifts": [
+       {
+        "shift_no": 1,
+        "tasks": [
+         {
+          "task_id": 1,
+          "text": "Osh 2 partiya",
+          "kind": "product",
+          "code": "OSH",
+          "units": 600,
+          "status": "done"
+         },
+         {
+          "task_id": 2,
+          "text": "Stiker 100 banka",
+          "kind": "other",
+          "code": null,
+          "units": null,
+          "status": "done"
+         }
+        ]
+       },
+       {
+        "shift_no": 2,
+        "tasks": [
+         {
+          "task_id": 3,
+          "text": "Mastava 1 partiya",
+          "kind": "product",
+          "code": "MASTAVA",
+          "units": 300,
+          "status": "not_done"
+         },
+         {
+          "task_id": 4,
+          "text": "Lag'mon 2 partiya",
+          "kind": "unresolved",
+          "code": null,
+          "units": null,
+          "status": "pending"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "totals": {
+     "planned_units": 900,
+     "done_units": 600,
+     "by_product": [
+      {
+       "code": "MASTAVA",
+       "planned": 300,
+       "done": 0
+      },
+      {
+       "code": "OSH",
+       "planned": 600,
+       "done": 600
+      }
+     ]
+    }
+   },
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/internal/planned-production": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "week_start": "str",
+     "products": {
+      "type": "map",
+      "values": "number"
+     },
+     "unresolved": {
+      "type": "list",
+      "items": "any"
+     },
+     "fingerprint": "str"
+    }
+   },
+   "sample": {
+    "week_start": "2026-11-02",
+    "products": {
+     "OSH": 600,
+     "MASTAVA": 300
+    },
+    "unresolved": [],
+    "fingerprint": "a1b2c3d4e5f60718"
+   },
+   "consumers": [
+    "inventory"
+   ]
+  },
+  "/internal/production-month": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "month": "str",
+     "units": "number",
+     "unresolved": {
+      "type": "list",
+      "items": "str"
+     },
+     "by_product": {
+      "type": "list",
+      "items": {
+       "type": "object",
+       "fields": {
+        "code": "str",
+        "units": "number"
+       }
+      }
+     }
+    }
+   },
+   "sample": {
+    "month": "2026-11",
+    "units": 1200,
+    "unresolved": [
+     "Somsa ko'p"
+    ],
+    "by_product": [
+     {
+      "code": "OSH",
+      "units": 900
+     },
+     {
+      "code": "MASTAVA",
+      "units": 300
+     }
+    ]
+   },
+   "consumers": [
+    "erp-dashboard",
+    "abc2019-finance"
+   ]
+  },
+  "/internal/production-sync-events": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "id": "number",
+      "operation_key": "str",
+      "event_type": "str",
+      "ombor_external_code": "str",
+      "completed_units": "number",
+      "created_at": "str",
+      "source_task_id": "number"
+     }
+    }
+   },
+   "sample": [
+    {
+     "id": 41,
+     "operation_key": "task-77-done",
+     "event_type": "PRODUCED",
+     "ombor_external_code": "OSH",
+     "completed_units": 600,
+     "created_at": "2026-11-02 18:00:00",
+     "source_task_id": 77
+    }
+   ],
+   "consumers": [
+    "production-sync"
+   ]
+  },
+  "/internal/today": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "date": "str",
+     "people": {
+      "type": "list",
+      "items": {
+       "type": "object",
+       "fields": {
+        "check_in": "str?",
+        "check_out": "any?",
+        "employee_id": "number",
+        "late_minutes": "number",
+        "name": "str",
+        "state": "str",
+        "status": "str?"
+       }
+      }
+     },
+     "counts": {
+      "type": "object",
+      "fields": {
+       "ishda": "number",
+       "tanaffusda": "number",
+       "ketgan": "number",
+       "kelmagan": "number",
+       "dam": "number"
+      }
+     },
+     "plan": {
+      "type": "object",
+      "fields": {
+       "tasks": {
+        "type": "list",
+        "items": {
+         "type": "object",
+         "fields": {
+          "shift_no": "number",
+          "status": "str",
+          "text": "str"
+         }
+        }
+       },
+       "total": "number",
+       "done": "number"
+      }
+     }
+    }
+   },
+   "sample": {
+    "date": "2026-11-03",
+    "people": [
+     {
+      "employee_id": 1,
+      "name": "Aziz",
+      "state": "ishda",
+      "status": "working",
+      "check_in": "08:05",
+      "check_out": null,
+      "late_minutes": 5
+     },
+     {
+      "employee_id": 2,
+      "name": "Dilnoza",
+      "state": "ishda",
+      "status": "working",
+      "check_in": "07:58",
+      "check_out": null,
+      "late_minutes": 0
+     },
+     {
+      "employee_id": 3,
+      "name": "Bobur",
+      "state": "tanaffusda",
+      "status": "break",
+      "check_in": "08:00",
+      "check_out": null,
+      "late_minutes": 0
+     },
+     {
+      "employee_id": 4,
+      "name": "Kamola",
+      "state": "kelmagan",
+      "status": null,
+      "check_in": null,
+      "check_out": null,
+      "late_minutes": 0
+     },
+     {
+      "employee_id": 5,
+      "name": "Sardor",
+      "state": "dam",
+      "status": null,
+      "check_in": null,
+      "check_out": null,
+      "late_minutes": 0
+     },
+     {
+      "employee_id": 6,
+      "name": "Jasur",
+      "state": "ishda",
+      "status": "working",
+      "check_in": "08:40",
+      "check_out": null,
+      "late_minutes": 40
+     }
+    ],
+    "counts": {
+     "ishda": 3,
+     "tanaffusda": 1,
+     "ketgan": 0,
+     "kelmagan": 1,
+     "dam": 1
+    },
+    "plan": {
+     "tasks": [
+      {
+       "shift_no": 1,
+       "text": "Osh 300 banka",
+       "status": "done"
+      },
+      {
+       "shift_no": 1,
+       "text": "Manti 200 banka",
+       "status": "pending"
+      },
+      {
+       "shift_no": 2,
+       "text": "Somsa 150 dona",
+       "status": "not_done"
+      }
+     ],
+     "total": 3,
+     "done": 1
+    }
+   },
+   "consumers": [
+    "erp-dashboard"
+   ]
+  }
+ }
+}
