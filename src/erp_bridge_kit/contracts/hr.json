@@ -420,14 +420,8 @@
       }
      },
      "counts": {
-      "type": "object",
-      "fields": {
-       "ishda": "number",
-       "tanaffusda": "number",
-       "ketgan": "number",
-       "kelmagan": "number",
-       "dam": "number"
-      }
+      "type": "map",
+      "values": "number"
      },
      "plan": {
       "type": "object",
