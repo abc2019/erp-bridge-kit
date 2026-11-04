@@ -160,3 +160,46 @@ Musbat — qo'shimcha chiqim, manfiy — qaytish (Ombor #91).
 
 Testlarda o'rnatish (test bog'liqligi, ishlab chiqarishga ta'sir qilmaydi):
 `erp-bridge-kit @ git+https://github.com/abc2019/erp-bridge-kit.git@<commit>` (`requirements-dev.txt` yoki CI).
+
+## Deploydan keyingi tekshiruv — `erp-smoke`
+Har deploydan keyin o'z kompyuteringizda ishga tushiring. Har servisning har ichki endpointi **faqat GET** bilan
+chaqiriladi va jadval chiqadi: **servis · yo'l · HTTP kod · shartnomaga mosmi · vaqt (ms)**. Qo'shimcha:
+**tokensiz** so'rov 401 qaytarishi (Ombor'da 200 bo'lsa — `AUTH_MODE` enforce emas!) va **o'qish (READ) tokeni**
+bilan yozish so'rovi 403 qaytarishi tekshiriladi — tana ataylab noto'g'ri, hech narsa yozilmaydi.
+Token qiymatlari ekranga ham, faylga ham chiqmaydi. Tokenlar — dashboard'dagi bilan bir xil (Railway →
+erp-dashboard → Variables).
+
+### Mac (Terminal)
+```bash
+python3 -m venv ~/erp-smoke && source ~/erp-smoke/bin/activate
+pip install "erp-bridge-kit @ git+https://github.com/abc2019/erp-bridge-kit.git"
+export OMBOR_API_BASE_URL="https://<ombor-domeni>"
+export FINANCE_API_BASE_URL="https://<finance-domeni>"
+export ANALYTICS_API_BASE_URL="https://<analytics-domeni>"
+export HR_INTERNAL_API_BASE_URL="https://<hr-domeni>"
+read -s -p "OMBOR token: " OMBOR_API_TOKEN && export OMBOR_API_TOKEN && echo
+read -s -p "FINANCE token: " FINANCE_API_TOKEN && export FINANCE_API_TOKEN && echo
+read -s -p "ANALYTICS token: " ANALYTICS_API_TOKEN && export ANALYTICS_API_TOKEN && echo
+read -s -p "HR token: " HR_INTERNAL_API_TOKEN && export HR_INTERNAL_API_TOKEN && echo
+erp-smoke
+```
+(`read -s` — token yozilganda ko'rinmaydi va buyruqlar tarixiga tushmaydi.)
+
+### Windows (PowerShell 7)
+```powershell
+py -m venv $HOME\erp-smoke; & $HOME\erp-smoke\Scripts\Activate.ps1
+pip install "erp-bridge-kit @ git+https://github.com/abc2019/erp-bridge-kit.git"
+$env:OMBOR_API_BASE_URL = "https://<ombor-domeni>"
+$env:FINANCE_API_BASE_URL = "https://<finance-domeni>"
+$env:ANALYTICS_API_BASE_URL = "https://<analytics-domeni>"
+$env:HR_INTERNAL_API_BASE_URL = "https://<hr-domeni>"
+$env:OMBOR_API_TOKEN = Read-Host "OMBOR token" -MaskInput
+$env:FINANCE_API_TOKEN = Read-Host "FINANCE token" -MaskInput
+$env:ANALYTICS_API_TOKEN = Read-Host "ANALYTICS token" -MaskInput
+$env:HR_INTERNAL_API_TOKEN = Read-Host "HR token" -MaskInput
+erp-smoke
+```
+
+Natija oxirida `Jami: N tekshiruv, M muammo`. ❌ qatorlar: `404` — endpoint deploy qilinmagan; `MOS EMAS` —
+javob shakli o'zgargan (shartnomaga qarang); `401/403` — token yoki ruxsat; "enforce EMAS" — Ombor ochiq,
+darhol `AUTH_MODE=enforce` qiling. Servis manzili berilmasa — o'sha servis o'tkazib yuboriladi.
