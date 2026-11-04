@@ -1,0 +1,895 @@
+{
+ "service": "ombor",
+ "version": 1,
+ "endpoints": {
+  "/balances": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "product_id": "str",
+      "quantity": "number",
+      "updated_at": "str",
+      "warehouse_type": "str"
+     }
+    }
+   },
+   "sample": [
+    {
+     "product_id": "f1",
+     "warehouse_type": "FINISHED",
+     "quantity": "530",
+     "updated_at": "2026-11-02T00:00:00"
+    },
+    {
+     "product_id": "f2",
+     "warehouse_type": "FINISHED",
+     "quantity": "48",
+     "updated_at": "2026-11-02T00:00:00"
+    },
+    {
+     "product_id": "r1",
+     "warehouse_type": "RAW",
+     "quantity": "12",
+     "updated_at": "2026-11-02T00:00:00"
+    },
+    {
+     "product_id": "r2",
+     "warehouse_type": "RAW",
+     "quantity": "140.5",
+     "updated_at": "2026-11-02T00:00:00"
+    }
+   ],
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/catalog": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "products": {
+      "type": "list",
+      "items": {
+       "type": "object",
+       "fields": {
+        "batch_size": "number?",
+        "code": "str?",
+        "has_recipe": "bool",
+        "name": "str"
+       }
+      }
+     },
+     "problems": {
+      "type": "object",
+      "fields": {}
+     }
+    }
+   },
+   "sample": {
+    "products": [
+     {
+      "code": "OSH",
+      "name": "Osh",
+      "has_recipe": true,
+      "batch_size": 300
+     },
+     {
+      "code": "LAGMON",
+      "name": "Uyg'ur lag'mon",
+      "has_recipe": true
+     },
+     {
+      "code": "MASTAVA",
+      "name": "Mastava",
+      "has_recipe": true,
+      "batch_size": 300
+     },
+     {
+      "code": null,
+      "name": "Kodsiz",
+      "has_recipe": true
+     },
+     {
+      "code": "NON",
+      "name": "Non",
+      "has_recipe": false
+     }
+    ],
+    "problems": {}
+   },
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/costing-profile": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "batch_size": "number?",
+      "external_code": "str",
+      "labor_category": "str?",
+      "labor_cost_per_unit": "number?",
+      "labor_hours_per_batch": "number?",
+      "name": "str",
+      "packaging": {
+       "type": "list",
+       "items": "any"
+      },
+      "product_id": "str"
+     }
+    }
+   },
+   "sample": [
+    {
+     "product_id": "f1",
+     "external_code": "OSH",
+     "name": "Osh",
+     "labor_category": "A",
+     "labor_hours_per_batch": "6",
+     "batch_size": "300",
+     "labor_cost_per_unit": "333",
+     "packaging": []
+    },
+    {
+     "product_id": "f2",
+     "external_code": "MASTAVA",
+     "name": "Mastava",
+     "labor_category": "A",
+     "labor_hours_per_batch": "6",
+     "batch_size": "250",
+     "labor_cost_per_unit": "250",
+     "packaging": []
+    }
+   ],
+   "consumers": [
+    "erp-dashboard",
+    "abc2019-finance"
+   ]
+  },
+  "/inventory-counts": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "counted_by": "str",
+      "created_at": "str",
+      "id": "str",
+      "lines": {
+       "type": "list",
+       "items": {
+        "type": "object",
+        "fields": {
+         "counted_quantity": "number",
+         "difference": "number",
+         "id": "str",
+         "ledger_transaction_id": "any?",
+         "product_id": "str",
+         "system_quantity_at_time": "number"
+        }
+       }
+      },
+      "note": "any?",
+      "warehouse_type": "str"
+     }
+    }
+   },
+   "sample": [
+    {
+     "id": "c1",
+     "warehouse_type": "RAW",
+     "counted_by": "owner",
+     "note": null,
+     "created_at": "2026-10-20T03:00:00",
+     "lines": [
+      {
+       "id": "l1",
+       "product_id": "r1",
+       "counted_quantity": "20",
+       "system_quantity_at_time": "21",
+       "difference": "-1",
+       "ledger_transaction_id": null
+      }
+     ]
+    },
+    {
+     "id": "c2",
+     "warehouse_type": "FINISHED",
+     "counted_by": "owner",
+     "note": null,
+     "created_at": "2026-10-28T03:00:00",
+     "lines": [
+      {
+       "id": "l2",
+       "product_id": "f1",
+       "counted_quantity": "500",
+       "system_quantity_at_time": "500",
+       "difference": "0",
+       "ledger_transaction_id": null
+      },
+      {
+       "id": "l3",
+       "product_id": "f2",
+       "counted_quantity": "40",
+       "system_quantity_at_time": "40",
+       "difference": "0",
+       "ledger_transaction_id": null
+      }
+     ]
+    }
+   ],
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/low-stock": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "product_id": "str",
+      "product_name": "str",
+      "external_code": "str?",
+      "warehouse_type": "str",
+      "unit": "str",
+      "current_quantity": "number",
+      "min_quantity": "number",
+      "shortage": "number"
+     }
+    }
+   },
+   "sample": [
+    {
+     "product_id": "p",
+     "product_name": "Mol go'shti",
+     "external_code": "MOL",
+     "warehouse_type": "RAW",
+     "unit": "kg",
+     "current_quantity": "12",
+     "min_quantity": "30",
+     "shortage": "18"
+    }
+   ],
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/product-mappings/analytics": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "system": "str",
+      "code": "str",
+      "products": {
+       "type": "list",
+       "items": {
+        "type": "object",
+        "fields": {
+         "product_id": "str",
+         "external_code": "str",
+         "name": "str",
+         "warehouse_type": "str"
+        }
+       }
+      }
+     }
+    }
+   },
+   "sample": [
+    {
+     "system": "analytics",
+     "code": "palov",
+     "products": [
+      {
+       "product_id": "p1",
+       "external_code": "OSH",
+       "name": "Osh",
+       "warehouse_type": "FINISHED"
+      }
+     ]
+    }
+   ],
+   "consumers": [
+    "erp-dashboard",
+    "abc2019-finance"
+   ]
+  },
+  "/production-batches/reconcile": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "date": "str",
+     "hr_error": "any?",
+     "total": "number",
+     "recorded": "number",
+     "missing": {
+      "type": "list",
+      "items": {
+       "type": "object",
+       "fields": {
+        "code": "str",
+        "units": "number",
+        "event_type": "str"
+       }
+      }
+     }
+    }
+   },
+   "sample": {
+    "date": "2026-11-02",
+    "hr_error": null,
+    "total": 3,
+    "recorded": 2,
+    "missing": [
+     {
+      "code": "PALOV",
+      "units": 150,
+      "event_type": "PRODUCED"
+     }
+    ]
+   },
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/production-batches/summary": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "product_id": "str",
+      "external_code": "str",
+      "name": "str",
+      "units": "number"
+     }
+    }
+   },
+   "sample": [
+    {
+     "product_id": "f1",
+     "external_code": "OSH",
+     "name": "Osh",
+     "units": "7.000"
+    }
+   ],
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/products": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "box_size": "number?",
+      "created_at": "str",
+      "external_code": "str?",
+      "id": "str",
+      "is_active": "bool",
+      "min_quantity": "number?",
+      "name": "str",
+      "unit": "str",
+      "warehouse_type": "str"
+     }
+    }
+   },
+   "sample": [
+    {
+     "id": "f1",
+     "name": "Osh",
+     "unit": "dona",
+     "warehouse_type": "FINISHED",
+     "is_active": true,
+     "external_code": "OSH",
+     "min_quantity": "100",
+     "box_size": 24,
+     "created_at": "2026-09-01T00:00:00"
+    },
+    {
+     "id": "f2",
+     "name": "Mastava",
+     "unit": "dona",
+     "warehouse_type": "FINISHED",
+     "is_active": true,
+     "external_code": "MASTAVA",
+     "min_quantity": null,
+     "box_size": 24,
+     "created_at": "2026-09-01T00:00:00"
+    },
+    {
+     "id": "r1",
+     "name": "Mol go'shti",
+     "unit": "kg",
+     "warehouse_type": "RAW",
+     "is_active": true,
+     "external_code": "MOL",
+     "min_quantity": "30",
+     "box_size": null,
+     "created_at": "2026-09-01T00:00:00"
+    },
+    {
+     "id": "r2",
+     "name": "Guruch",
+     "unit": "kg",
+     "warehouse_type": "RAW",
+     "is_active": true,
+     "external_code": "GURUCH",
+     "min_quantity": "50",
+     "box_size": null,
+     "created_at": "2026-09-01T00:00:00"
+    },
+    {
+     "id": "r9",
+     "name": "Eski",
+     "unit": "kg",
+     "warehouse_type": "RAW",
+     "is_active": false,
+     "external_code": null,
+     "min_quantity": null,
+     "box_size": null,
+     "created_at": "2026-09-01T00:00:00"
+    }
+   ],
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/purchase-needs": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "generated_at": "str",
+     "total_amount": "number",
+     "unpriced_count": "number",
+     "reports": {
+      "type": "list",
+      "items": {
+       "type": "object",
+       "fields": {
+        "cycle": "str",
+        "error": "any?",
+        "needs": {
+         "type": "list",
+         "items": {
+          "type": "object",
+          "fields": {
+           "amount": "number?",
+           "days_left": "number?",
+           "name": "str",
+           "product_id": "str",
+           "required": "number",
+           "stock": "number",
+           "supplier": "str?",
+           "to_buy": "number",
+           "unit": "str",
+           "unit_price": "number?"
+          }
+         }
+        },
+        "problems": {
+         "type": "list",
+         "items": "any"
+        },
+        "title": "str"
+       }
+      }
+     }
+    }
+   },
+   "sample": {
+    "generated_at": "2026-11-03T09:00:00+09:00",
+    "total_amount": "245000",
+    "unpriced_count": 1,
+    "reports": [
+     {
+      "cycle": "WEEKLY_PLAN",
+      "title": "Haftalik xarid (02.11–08.11 rejasi)",
+      "error": null,
+      "problems": [
+       "Somsa: retsept yo'q - xomashyo hisoblanmadi"
+      ],
+      "needs": [
+       {
+        "product_id": "r3",
+        "name": "Piyoz",
+        "unit": "kg",
+        "supplier": "Sabzavot do'koni",
+        "required": "40",
+        "stock": "15",
+        "to_buy": "25",
+        "days_left": null,
+        "unit_price": "3000",
+        "amount": "75000"
+       },
+       {
+        "product_id": "r4",
+        "name": "Sabzi",
+        "unit": "kg",
+        "supplier": "Sabzavot do'koni",
+        "required": "60",
+        "stock": "20",
+        "to_buy": "40",
+        "days_left": null,
+        "unit_price": "1500",
+        "amount": "60000"
+       }
+      ]
+     },
+     {
+      "cycle": "MONTHLY",
+      "title": "Oylik xarid (rejadan: 2 hafta reja bo'yicha)",
+      "error": null,
+      "problems": [],
+      "needs": [
+       {
+        "product_id": "r1",
+        "name": "Mol go'shti",
+        "unit": "kg",
+        "supplier": "Halal market",
+        "required": "320",
+        "stock": "50",
+        "to_buy": "270",
+        "days_left": null,
+        "unit_price": null,
+        "amount": null
+       }
+      ]
+     },
+     {
+      "cycle": "ON_DEMAND",
+      "title": "Kam qolgan (≤7 kunga yetadi)",
+      "error": null,
+      "problems": [],
+      "needs": [
+       {
+        "product_id": "r2",
+        "name": "Guruch",
+        "unit": "kg",
+        "supplier": null,
+        "required": "60",
+        "stock": "16",
+        "to_buy": "44",
+        "days_left": "5.3",
+        "unit_price": "2500",
+        "amount": "110000"
+       }
+      ]
+     }
+    ]
+   },
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/purchase-receipts": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "confirmed_at": "str",
+      "document_id": "str",
+      "payment_type": "str",
+      "supplier": "str",
+      "supplier_id": "str?",
+      "total": "number?"
+     }
+    }
+   },
+   "sample": [
+    {
+     "document_id": "d1",
+     "confirmed_at": "2099-01-01T00:00:00",
+     "supplier_id": null,
+     "supplier": "Kelajak",
+     "payment_type": "CARD",
+     "total": "1"
+    },
+    {
+     "document_id": "d2",
+     "confirmed_at": "2026-11-02T02:00:00",
+     "supplier_id": "s1",
+     "supplier": "Halal market",
+     "payment_type": "CREDIT",
+     "total": "450000"
+    },
+    {
+     "document_id": "d3",
+     "confirmed_at": "2026-11-02T03:00:00",
+     "supplier_id": "s2",
+     "supplier": "Sabzavot",
+     "payment_type": "CARD",
+     "total": null
+    }
+   ],
+   "consumers": [
+    "erp-dashboard",
+    "abc2019-finance"
+   ]
+  },
+  "/raw-prices/history": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "external_code": "str?",
+      "latest_at": "str?",
+      "latest_price": "number?",
+      "latest_source": "str?",
+      "months": {
+       "type": "list",
+       "items": {
+        "type": "object",
+        "fields": {
+         "month": "str",
+         "price": "number",
+         "purchases": "number",
+         "source": "str"
+        }
+       }
+      },
+      "name": "str",
+      "product_id": "str",
+      "unit": "str",
+      "used_in": {
+       "type": "list",
+       "items": {
+        "type": "object",
+        "fields": {
+         "batch_size": "number",
+         "external_code": "str",
+         "name": "str",
+         "product_id": "str",
+         "quantity_per_batch": "number"
+        }
+       }
+      }
+     }
+    }
+   },
+   "sample": [
+    {
+     "product_id": "r1",
+     "external_code": "MOL",
+     "name": "Mol go'shti",
+     "unit": "kg",
+     "months": [
+      {
+       "month": "2026-08",
+       "price": "14500",
+       "source": "PURCHASE",
+       "purchases": 3
+      },
+      {
+       "month": "2026-09",
+       "price": "15000",
+       "source": "PURCHASE",
+       "purchases": 4
+      },
+      {
+       "month": "2026-10",
+       "price": "15500",
+       "source": "PURCHASE",
+       "purchases": 2
+      },
+      {
+       "month": "2026-11",
+       "price": "17500",
+       "source": "PURCHASE",
+       "purchases": 1
+      }
+     ],
+     "latest_price": "17500",
+     "latest_source": "PURCHASE",
+     "latest_at": "2026-11-02T03:00:00+00:00",
+     "used_in": [
+      {
+       "product_id": "f1",
+       "name": "Osh",
+       "external_code": "OSH",
+       "quantity_per_batch": "40",
+       "batch_size": "300"
+      }
+     ]
+    },
+    {
+     "product_id": "r2",
+     "external_code": "GURUCH",
+     "name": "Guruch",
+     "unit": "kg",
+     "months": [
+      {
+       "month": "2026-09",
+       "price": "2400",
+       "source": "PURCHASE",
+       "purchases": 2
+      },
+      {
+       "month": "2026-10",
+       "price": "2500",
+       "source": "MANUAL",
+       "purchases": 0
+      }
+     ],
+     "latest_price": "2500",
+     "latest_source": "MANUAL",
+     "latest_at": "2026-10-10T03:00:00+00:00",
+     "used_in": [
+      {
+       "product_id": "f1",
+       "name": "Osh",
+       "external_code": "OSH",
+       "quantity_per_batch": "50",
+       "batch_size": "300"
+      }
+     ]
+    },
+    {
+     "product_id": "r9",
+     "external_code": null,
+     "name": "Zira",
+     "unit": "kg",
+     "months": [],
+     "latest_price": null,
+     "latest_source": null,
+     "latest_at": null,
+     "used_in": []
+    }
+   ],
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/sales-shipments/by-order": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "events": "number",
+      "first_at": "str",
+      "last_at": "str",
+      "order_reference": "str",
+      "units": "number"
+     }
+    }
+   },
+   "sample": [
+    {
+     "order_reference": "7",
+     "units": "24.000",
+     "events": 1,
+     "first_at": "2026-11-02T14:50:00+00:00",
+     "last_at": "2026-11-02T14:50:00+00:00"
+    },
+    {
+     "order_reference": "8",
+     "units": "12.000",
+     "events": 1,
+     "first_at": "2026-11-02T14:50:00+00:00",
+     "last_at": "2026-11-02T14:50:00+00:00"
+    }
+   ],
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/system-alerts/open": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "id": "str",
+      "source": "str",
+      "key": "str",
+      "level": "str",
+      "message": "str",
+      "notified": "bool",
+      "created_at": "str"
+     }
+    }
+   },
+   "sample": [
+    {
+     "id": "1",
+     "source": "sales-sync",
+     "key": "k",
+     "level": "warning",
+     "message": "Kod topilmadi\nbatafsil",
+     "notified": true,
+     "created_at": "2026-11-02T02:00:00"
+    }
+   ],
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/system/activity": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "production_sync_last": "str",
+     "sales_sync_last": "any?",
+     "recipes_last": "str"
+    }
+   },
+   "sample": {
+    "production_sync_last": "2026-11-02T03:00:00",
+    "sales_sync_last": null,
+    "recipes_last": "2026-10-01T00:00:00"
+   },
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/transactions": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "author": "str",
+      "created_at": "str",
+      "direction": "str",
+      "id": "str",
+      "pending_document_id": "any?",
+      "product_id": "str",
+      "quantity": "number",
+      "reason": "str",
+      "source_id": "str",
+      "transaction_type": "str",
+      "unit": "str",
+      "unit_price": "number?",
+      "warehouse_type": "str"
+     }
+    }
+   },
+   "sample": [
+    {
+     "id": "t1",
+     "product_id": "r1",
+     "warehouse_type": "RAW",
+     "transaction_type": "KIRIM",
+     "direction": "IN",
+     "quantity": "20",
+     "unit": "kg",
+     "unit_price": "15000",
+     "reason": "Chek: Halal market",
+     "author": "owner",
+     "source_id": "s1",
+     "pending_document_id": null,
+     "created_at": "2026-11-01T01:00:00"
+    },
+    {
+     "id": "t2",
+     "product_id": "r1",
+     "warehouse_type": "RAW",
+     "transaction_type": "CHIQIM",
+     "direction": "OUT",
+     "quantity": "8",
+     "unit": "kg",
+     "unit_price": null,
+     "reason": "Ishlab chiqarish: Osh",
+     "author": "hr",
+     "source_id": "s2",
+     "pending_document_id": null,
+     "created_at": "2026-11-02T01:00:00"
+    }
+   ],
+   "consumers": [
+    "erp-dashboard"
+   ]
+  }
+ }
+}

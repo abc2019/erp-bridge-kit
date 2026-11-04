@@ -1,0 +1,427 @@
+{
+ "service": "analytics",
+ "version": 1,
+ "endpoints": {
+  "/internal/accepted-orders": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "bonus_units": "number",
+      "category": "str",
+      "created_at": "str",
+      "order_id": "number",
+      "units": "number"
+     }
+    }
+   },
+   "sample": [
+    {
+     "order_id": 5,
+     "category": "OPTOM",
+     "created_at": "2026-11-02T01:00:00+00:00",
+     "units": 24,
+     "bonus_units": 0
+    },
+    {
+     "order_id": 7,
+     "category": "STORE",
+     "created_at": "2026-11-02T02:00:00+00:00",
+     "units": 24,
+     "bonus_units": 2
+    },
+    {
+     "order_id": 8,
+     "category": "OPTOM",
+     "created_at": "2026-11-02T03:00:00+00:00",
+     "units": 12,
+     "bonus_units": 0
+    }
+   ],
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/internal/activity": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "last_message_at": "str",
+     "listener_updated_at": "str",
+     "last_order_at": "any?",
+     "raw_backlog": "number",
+     "raw_backlog_minutes": "number"
+    }
+   },
+   "sample": {
+    "last_message_at": "2026-11-03T09:00:00+00:00",
+    "listener_updated_at": "2026-11-03T09:01:00+00:00",
+    "last_order_at": null,
+    "raw_backlog": 4,
+    "raw_backlog_minutes": 30
+   },
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/internal/orders/by-message": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "order_id": "number",
+     "chat_id": "number",
+     "message_id": "number",
+     "category": "str",
+     "review_status": "str",
+     "accepted": "bool",
+     "is_deleted": "bool",
+     "created_at": "str",
+     "changed_at": "str",
+     "items": {
+      "type": "list",
+      "items": {
+       "type": "object",
+       "fields": {
+        "product": "str",
+        "units_total": "number"
+       }
+      }
+     },
+     "bonus_items": {
+      "type": "list",
+      "items": {
+       "type": "object",
+       "fields": {
+        "product": "str",
+        "quantity": "number"
+       }
+      }
+     },
+     "items_hash": "str",
+     "sale_total_krw": "number"
+    }
+   },
+   "sample": {
+    "order_id": 990,
+    "chat_id": -100123,
+    "message_id": 77,
+    "category": "OPTOM",
+    "review_status": "APPROVED",
+    "accepted": true,
+    "is_deleted": false,
+    "created_at": "2026-10-04T03:00:00+00:00",
+    "changed_at": "2026-10-04T04:00:00+00:00",
+    "items": [
+     {
+      "product": "palov",
+      "units_total": 24
+     }
+    ],
+    "bonus_items": [
+     {
+      "product": "non",
+      "quantity": 2
+     }
+    ],
+    "items_hash": "36dc528b831622e8",
+    "sale_total_krw": 360000
+   },
+   "consumers": [
+    "sales-sync"
+   ]
+  },
+  "/internal/orders/changes": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "order_id": "number",
+      "chat_id": "number",
+      "message_id": "number",
+      "category": "str",
+      "review_status": "str",
+      "accepted": "bool",
+      "is_deleted": "bool",
+      "created_at": "str",
+      "changed_at": "str",
+      "items": {
+       "type": "list",
+       "items": {
+        "type": "object",
+        "fields": {
+         "product": "str",
+         "units_total": "number"
+        }
+       }
+      },
+      "bonus_items": {
+       "type": "list",
+       "items": {
+        "type": "object",
+        "fields": {
+         "product": "str",
+         "quantity": "number"
+        }
+       }
+      },
+      "items_hash": "str",
+      "sale_total_krw": "number"
+     }
+    }
+   },
+   "sample": [
+    {
+     "order_id": 990,
+     "chat_id": -100123,
+     "message_id": 77,
+     "category": "OPTOM",
+     "review_status": "APPROVED",
+     "accepted": true,
+     "is_deleted": false,
+     "created_at": "2026-10-04T03:00:00+00:00",
+     "changed_at": "2026-10-04T04:00:00+00:00",
+     "items": [
+      {
+       "product": "palov",
+       "units_total": 24
+      }
+     ],
+     "bonus_items": [
+      {
+       "product": "non",
+       "quantity": 2
+      }
+     ],
+     "items_hash": "36dc528b831622e8",
+     "sale_total_krw": 360000
+    }
+   ],
+   "consumers": [
+    "sales-sync"
+   ]
+  },
+  "/internal/pending-orders": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "category": "str?",
+      "confirmable": "bool",
+      "created_at": "str",
+      "items": {
+       "type": "list",
+       "items": {
+        "type": "object",
+        "fields": {
+         "product": "str",
+         "units_total": "number"
+        }
+       }
+      },
+      "order_id": "number",
+      "raw_text": "str",
+      "reason": "str",
+      "sale_total_krw": "number?",
+      "sender_name": "str?"
+     }
+    }
+   },
+   "sample": [
+    {
+     "order_id": 5,
+     "category": "OPTOM",
+     "created_at": "2026-11-02T01:00:00+00:00",
+     "confirmable": true,
+     "items": [
+      {
+       "product": "palov",
+       "units_total": 24
+      }
+     ],
+     "sale_total_krw": 180000,
+     "reason": "yangi mijoz",
+     "sender_name": "Ali",
+     "raw_text": "Osh 1 box <b>\n010-1234-5678"
+    },
+    {
+     "order_id": 6,
+     "category": null,
+     "created_at": "2026-11-02T02:00:00+00:00",
+     "confirmable": false,
+     "items": [],
+     "sale_total_krw": null,
+     "reason": "kategoriya noaniq",
+     "sender_name": null,
+     "raw_text": "?"
+    }
+   ],
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/internal/pending-review": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "count": "number",
+     "oldest_created_at": "str"
+    }
+   },
+   "sample": {
+    "count": 3,
+    "oldest_created_at": "2026-11-02T03:00:00+00:00"
+   },
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/internal/product-keys": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "aliases": "number",
+      "key": "str"
+     }
+    }
+   },
+   "sample": [
+    {
+     "key": "palov",
+     "aliases": 4
+    },
+    {
+     "key": "somsa",
+     "aliases": 2
+    }
+   ],
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/internal/receivables": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "order_id": "number",
+      "category": "str",
+      "created_at": "str",
+      "total_krw": "number",
+      "lines": {
+       "type": "list",
+       "items": {
+        "type": "object",
+        "fields": {
+         "product": "str",
+         "units": "number",
+         "unit_price_krw": "number",
+         "line_total_krw": "number"
+        }
+       }
+      },
+      "raw_text": "str",
+      "sender_name": "str"
+     }
+    }
+   },
+   "sample": [
+    {
+     "order_id": 5,
+     "category": "OPTOM",
+     "created_at": "2026-11-02T01:00:00+00:00",
+     "total_krw": 180000,
+     "lines": [
+      {
+       "product": "palov",
+       "units": 24,
+       "unit_price_krw": 7500,
+       "line_total_krw": 180000
+      }
+     ],
+     "raw_text": "Osh 1 box",
+     "sender_name": "Ali"
+    }
+   ],
+   "consumers": [
+    "abc2019-finance"
+   ]
+  },
+  "/internal/sales-summary": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "orders": "number",
+     "unpriced_orders": "number",
+     "revenue_krw": "number",
+     "products": {
+      "type": "list",
+      "items": {
+       "type": "object",
+       "fields": {
+        "bonus_units": "number",
+        "product": "str",
+        "revenue_krw": "number",
+        "units": "number",
+        "unpriced_units": "number"
+       }
+      }
+     },
+     "by_category": {
+      "type": "list",
+      "items": {
+       "type": "object",
+       "fields": {
+        "category": "str",
+        "orders": "number",
+        "revenue_krw": "number"
+       }
+      }
+     }
+    }
+   },
+   "sample": {
+    "orders": 12,
+    "unpriced_orders": 0,
+    "revenue_krw": 1245000,
+    "products": [
+     {
+      "product": "palov",
+      "units": 120,
+      "revenue_krw": 900000,
+      "bonus_units": 4,
+      "unpriced_units": 0
+     },
+     {
+      "product": "mastava",
+      "units": 66,
+      "revenue_krw": 345000,
+      "bonus_units": 0,
+      "unpriced_units": 0
+     }
+    ],
+    "by_category": [
+     {
+      "category": "OPTOM",
+      "orders": 7,
+      "revenue_krw": 845000
+     },
+     {
+      "category": "STORE",
+      "orders": 5,
+      "revenue_krw": 400000
+     }
+    ]
+   },
+   "consumers": [
+    "erp-dashboard",
+    "abc2019-finance"
+   ]
+  }
+ }
+}

@@ -1,0 +1,587 @@
+{
+ "service": "finance",
+ "version": 1,
+ "endpoints": {
+  "/card-receipts/unlinked": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "document_id": "str",
+      "confirmed_at": "str",
+      "supplier": "str",
+      "total": "number",
+      "unpriced": "bool"
+     }
+    }
+   },
+   "sample": [
+    {
+     "document_id": "d9",
+     "confirmed_at": "2026-10-30T02:00:00",
+     "supplier": "CU Mart",
+     "total": "55000",
+     "unpriced": false
+    }
+   ],
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/cash-accounts": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "account_id": "str",
+      "balance": "number",
+      "name": "str"
+     }
+    }
+   },
+   "sample": [
+    {
+     "account_id": "KB",
+     "name": "KB Kookmin",
+     "balance": "8450210"
+    },
+    {
+     "account_id": "SHINHAN",
+     "name": "Shinhan",
+     "balance": "1120000"
+    },
+    {
+     "account_id": "CARD_SAMSUNG_4821",
+     "name": "💳 Samsung karta …4821",
+     "balance": "-640300"
+    }
+   ],
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/cash-transactions": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "account_id": "str",
+      "amount": "number",
+      "balance_after": "number?",
+      "category": "str?",
+      "counterparty": "str?",
+      "direction": "str",
+      "id": "str",
+      "occurred_at": "str",
+      "source": "str"
+     }
+    }
+   },
+   "sample": [
+    {
+     "id": "x1",
+     "account_id": "KB",
+     "direction": "IN",
+     "amount": "320000",
+     "balance_after": "8450210",
+     "counterparty": "KIM MINSU",
+     "category": "Sotuv",
+     "source": "SMS",
+     "occurred_at": "2026-11-02T09:00:00"
+    },
+    {
+     "id": "x2",
+     "account_id": "KB",
+     "direction": "OUT",
+     "amount": "96700",
+     "balance_after": "8130210",
+     "counterparty": "쿠팡",
+     "category": "Qadoqlash",
+     "source": "SMS",
+     "occurred_at": "2026-11-01T11:05:00"
+    }
+   ],
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/cash-transactions/uncategorized": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "total": "number",
+     "items": {
+      "type": "list",
+      "items": {
+       "type": "object",
+       "fields": {
+        "id": "str",
+        "counterparty": "str?",
+        "amount": "number",
+        "direction": "str",
+        "occurred_at": "str"
+       }
+      }
+     }
+    }
+   },
+   "sample": {
+    "total": 5,
+    "items": [
+     {
+      "id": "tx1",
+      "counterparty": "CU편의점",
+      "amount": "18400",
+      "direction": "OUT",
+      "occurred_at": "2026-11-02T00:12:00"
+     }
+    ]
+   },
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/categories": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "OUT": {
+      "type": "list",
+      "items": "str"
+     },
+     "IN": {
+      "type": "list",
+      "items": "str"
+     }
+    }
+   },
+   "sample": {
+    "OUT": [
+     "Xomashyo",
+     "Qadoqlash",
+     "Ijara",
+     "Egasiga foyda"
+    ],
+    "IN": [
+     "Sotuv",
+     "Boshqa kirim"
+    ]
+   },
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/cogs/{code}/full": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "bank_overhead": "number?",
+     "gas": "number",
+     "labor": "number",
+     "materials": "number?",
+     "normal_monthly_units": "number",
+     "overhead": "number",
+     "overhead_parts": {
+      "type": "list",
+      "items": {
+       "type": "object",
+       "fields": {
+        "name": "str",
+        "per_unit": "number"
+       }
+      }
+     },
+     "packaging": "number",
+     "period_from": "str",
+     "total": "number?"
+    }
+   },
+   "sample": {
+    "period_from": "2026-11-01",
+    "materials": "1700",
+    "packaging": "400",
+    "labor": "333.33",
+    "overhead": "369",
+    "total": "2802.4",
+    "gas": "64",
+    "bank_overhead": "0",
+    "overhead_parts": [
+     {
+      "name": "Ijara",
+      "per_unit": "210"
+     },
+     {
+      "name": "Tok",
+      "per_unit": "95.4"
+     }
+    ],
+    "normal_monthly_units": "4820.3"
+   },
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/gross-profit": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "profit": "number",
+     "revenue": "number",
+     "cogs": "number",
+     "net_profit": "number",
+     "incomplete_count": "number",
+     "unpriced_orders": "number",
+     "lines": {
+      "type": "list",
+      "items": {
+       "type": "object",
+       "fields": {
+        "cogs": "number?",
+        "margin_pct": "number?",
+        "name": "str",
+        "net_profit": "number?",
+        "profit": "number?",
+        "quantity": "number",
+        "revenue": "number"
+       }
+      }
+     }
+    }
+   },
+   "sample": {
+    "profit": "1580000.00",
+    "revenue": "2410000",
+    "cogs": "830000",
+    "net_profit": "1200000",
+    "incomplete_count": 1,
+    "unpriced_orders": 0,
+    "lines": [
+     {
+      "name": "Osh",
+      "quantity": "120",
+      "revenue": "900000",
+      "cogs": "252000",
+      "profit": "648000",
+      "margin_pct": "72",
+      "net_profit": "520000"
+     },
+     {
+      "name": "Mastava",
+      "quantity": "66",
+      "revenue": "345000",
+      "cogs": null,
+      "profit": null,
+      "margin_pct": null,
+      "net_profit": null
+     }
+    ]
+   },
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/inventory-value": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "total_value": "number",
+     "priced_product_count": "number",
+     "unpriced_product_count": "number",
+     "unpriced_products": {
+      "type": "list",
+      "items": "str"
+     },
+     "lines": {
+      "type": "list",
+      "items": {
+       "type": "object",
+       "fields": {
+        "external_code": "str",
+        "product_id": "str",
+        "product_name": "str",
+        "quantity": "number",
+        "unit": "str",
+        "unit_price": "number",
+        "value": "number",
+        "warehouse_type": "str"
+       }
+      }
+     }
+    }
+   },
+   "sample": {
+    "total_value": "12500000",
+    "priced_product_count": 3,
+    "unpriced_product_count": 1,
+    "unpriced_products": [
+     "Zira"
+    ],
+    "lines": [
+     {
+      "product_id": "f1",
+      "product_name": "Osh",
+      "external_code": "OSH",
+      "warehouse_type": "FINISHED",
+      "quantity": "530",
+      "unit": "dona",
+      "unit_price": "2800",
+      "value": "1484000"
+     },
+     {
+      "product_id": "r1",
+      "product_name": "Mol go'shti",
+      "external_code": "MOL",
+      "warehouse_type": "RAW",
+      "quantity": "12",
+      "unit": "kg",
+      "unit_price": "15000",
+      "value": "180000"
+     }
+    ]
+   },
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/pnl": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "period_from": "str",
+     "period_to": "str",
+     "total_in": "number",
+     "total_out": "number",
+     "net": "number",
+     "owner_draws": "number",
+     "by_account": {
+      "type": "list",
+      "items": "any"
+     },
+     "by_category": {
+      "type": "list",
+      "items": {
+       "type": "object",
+       "fields": {
+        "category": "str",
+        "direction": "str",
+        "total": "number",
+        "transaction_count": "number"
+       }
+      }
+     }
+    }
+   },
+   "sample": {
+    "period_from": "2026-11-01",
+    "period_to": "2026-11-13",
+    "total_in": "5200000",
+    "total_out": "3100000",
+    "net": "2100000",
+    "owner_draws": "1000000",
+    "by_account": [],
+    "by_category": [
+     {
+      "direction": "IN",
+      "category": "Sotuv",
+      "total": "5000000",
+      "transaction_count": 40
+     },
+     {
+      "direction": "IN",
+      "category": "Boshqa",
+      "total": "200000",
+      "transaction_count": 1
+     },
+     {
+      "direction": "OUT",
+      "category": "Xomashyo",
+      "total": "1800000",
+      "transaction_count": 12
+     },
+     {
+      "direction": "OUT",
+      "category": "Ijara",
+      "total": "1300000",
+      "transaction_count": 2
+     }
+    ]
+   },
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/receivables/customers": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "since": "str",
+     "history_from": "str",
+     "due_total": "number",
+     "unknown": {
+      "type": "object",
+      "fields": {
+       "orders": "number",
+       "total": "number"
+      }
+     },
+     "customers": {
+      "type": "list",
+      "items": {
+       "type": "object",
+       "fields": {
+        "categories": {
+         "type": "list",
+         "items": "str"
+        },
+        "customer_id": "str",
+        "due": "number",
+        "last_order": "str",
+        "monthly": {
+         "type": "map",
+         "values": "number"
+        },
+        "name": "str",
+        "orders": "number",
+        "phone": "str",
+        "total": "number",
+        "units": "number",
+        "unpriced_orders": "number"
+       }
+      }
+     }
+    }
+   },
+   "sample": {
+    "since": "2026-10-01",
+    "history_from": "2026-06-01",
+    "due_total": "430000",
+    "unknown": {
+     "orders": 2,
+     "total": "80000"
+    },
+    "customers": [
+     {
+      "customer_id": "c1",
+      "name": "Aziz market",
+      "phone": "010-1111-2222",
+      "categories": [
+       "STORE"
+      ],
+      "monthly": {
+       "2026-09": "300000",
+       "2026-10": "420000",
+       "2026-11": "60000"
+      },
+      "orders": 14,
+      "units": 520,
+      "total": "780000",
+      "unpriced_orders": 0,
+      "last_order": "2026-11-02T14:00:00+09:00",
+      "due": "310000"
+     },
+     {
+      "customer_id": "c2",
+      "name": "Bobur aka",
+      "phone": "010-3333-4444",
+      "categories": [
+       "OPTOM"
+      ],
+      "monthly": {
+       "2026-07": "250000",
+       "2026-08": "120000"
+      },
+      "orders": 5,
+      "units": 160,
+      "total": "370000",
+      "unpriced_orders": 1,
+      "last_order": "2026-08-20T10:00:00+09:00",
+      "due": "0"
+     },
+     {
+      "customer_id": "phone:010-5555-6666",
+      "name": "Dilshod",
+      "phone": "010-5555-6666",
+      "categories": [
+       "OPTOM"
+      ],
+      "monthly": {
+       "2026-11": "120000"
+      },
+      "orders": 1,
+      "units": 24,
+      "total": "120000",
+      "unpriced_orders": 0,
+      "last_order": "2026-11-01T09:00:00+09:00",
+      "due": "120000"
+     }
+    ]
+   },
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/receivables/summary": {
+   "schema": {
+    "type": "object",
+    "fields": {
+     "since": "str",
+     "total_due": "number",
+     "unpaid_count": "number",
+     "stores_with_debt": "number"
+    }
+   },
+   "sample": {
+    "since": "2026-10-01",
+    "total_due": "3180000",
+    "unpaid_count": 4,
+    "stores_with_debt": 2
+   },
+   "consumers": [
+    "erp-dashboard"
+   ]
+  },
+  "/supplier-balances": {
+   "schema": {
+    "type": "list",
+    "items": {
+     "type": "object",
+     "fields": {
+      "credit_purchases": "number",
+      "debt": "number",
+      "last_purchase": "str",
+      "payments": "number",
+      "supplier": "str",
+      "supplier_id": "str",
+      "unpriced_credit_receipts": "number"
+     }
+    }
+   },
+   "sample": [
+    {
+     "supplier_id": "s1",
+     "supplier": "Halal market",
+     "credit_purchases": "900000",
+     "payments": "500000",
+     "debt": "400000",
+     "last_purchase": "2026-10-30",
+     "unpriced_credit_receipts": 1
+    },
+    {
+     "supplier_id": "s2",
+     "supplier": "Sabzavot do'koni",
+     "credit_purchases": "100000",
+     "payments": "100000",
+     "debt": "0",
+     "last_purchase": "2026-10-20",
+     "unpriced_credit_receipts": 0
+    }
+   ],
+   "consumers": [
+    "erp-dashboard"
+   ]
+  }
+ }
+}
